@@ -1,5 +1,5 @@
 import 'scrambled.dart';
-import 'maxCycles.dart';
+import 'max_cycles.dart';
 
 List<int> monteCarloSimulation(int n, int N) {
   // Implementation of monteCarloSimulation

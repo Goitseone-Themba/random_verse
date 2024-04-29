@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'monteCarlo.dart';
+import 'monte_carlo.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,35 +28,83 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  List<int> maximumLength = [];
+  List<int> lengths = [];
 
   startSimulation() {
-    maximumLength = monteCarloSimulation(10, 1000000);
+    lengths = monteCarloSimulation(100, 10000);
     notifyListeners();
   }
+}
+
+class MaxCycleLength {
+  final double yValue;
+  MaxCycleLength(this.yValue);
 }
 
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var length = appState.maximumLength;
+    var lengthData = appState.lengths;
+
+    final List<MaxCycleLength> chartData =
+        lengthData.map((e) => MaxCycleLength(e.toDouble())).toList();
 
     return Scaffold(
-        body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Enter n :'),
-          ElevatedButton(
-              onPressed: () {
-                appState.startSimulation();
-              },
-              child: Text('Generate')),
-          SizedBox(height: 128, child: Text('The length is $length'),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          automaticallyImplyLeading: false,
+          leading: Icon(
+            Icons.language_rounded,
+            color: Colors.black,
+            size: 24,
           ),
-        ],
-      ),
-    ));
+          title: Text(
+            'RandomVerse',
+            // style: GoogleFonts.nunitoSans(),
+          ),
+          actions: [],
+          elevation: 2,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Text('Enter n : '),
+                ],
+              ),
+              ElevatedButton(
+                  onPressed: () {
+                    appState.startSimulation();
+                  },
+                  child: Text('Generate')),
+              SizedBox(
+                height: 128,
+                child: Text('The length is $lengthData'),
+              ),
+              SizedBox(
+                height: 480,
+                width: 720,
+                child: chartData.isNotEmpty
+                    ? SfCartesianChart(
+                        series: <CartesianSeries>[
+                          HistogramSeries<MaxCycleLength, num>(
+                            dataSource: chartData,
+                            yValueMapper: (MaxCycleLength cycleLength, _) =>
+                                cycleLength.yValue,
+                            binInterval: 5,
+                            showNormalDistributionCurve: true,
+                            curveColor: Colors.deepOrange,
+                            borderWidth: 3,
+                          ),
+                        ],
+                      )
+                    : SizedBox(),
+              ),
+            ],
+          ),
+        ));
   }
 }
