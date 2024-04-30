@@ -1,5 +1,6 @@
 import 'dart:math';
 
+///@Author: Goitseone Themba 21000539
 List<int> scrambled(int n) {
   final List<int> nums = List<int>.generate(n, (i) => i + 1);
 

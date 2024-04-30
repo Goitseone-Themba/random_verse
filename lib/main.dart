@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'monte_carlo.dart';
@@ -9,6 +8,7 @@ void main() {
   runApp(MyApp());
 }
 
+///@Author: Goitseone Themba 21000539
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -28,12 +28,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//Keeps track of the list of lengths and the expected maximum length
 class MyAppState extends ChangeNotifier {
   List<int> lengths = [];
   double expectedMax = 0;
 
   startSimulation(int n, int N) {
-    
     List data = monteCarloSimulation(n, N);
     lengths = data[0];
     expectedMax = data[1];
@@ -48,7 +48,7 @@ class MaxCycleLength {
   MaxCycleLength(this.yValue);
 }
 
-//Has an appbar and a column with 4 rows
+//Has an appbar and a column with 3 rows
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -73,17 +73,15 @@ class MyHomePage extends StatelessWidget {
           ),
           title: Text(
             'RandomVerse',
-            // style: GoogleFonts.nunitoSans(),
           ),
           actions: [],
           elevation: 2,
         ),
         body: Center(
+          //First Row contains the form
           child: Padding(
             padding: EdgeInsets.fromLTRB(256, 64, 256, 0),
             child: Column(
-              // mainAxisSize: MainAxisSize.max,
-              // mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,7 +147,8 @@ class MyHomePage extends StatelessWidget {
                                       child: const Text('close'),
                                     ),
                                   ],
-                                  title: const Text('Invalid input, array size and number of permutations cannot be empty...'),
+                                  title: const Text(
+                                      'Invalid input, array size and number of permutations cannot be empty...'),
                                 ),
                               );
                             }
@@ -162,6 +161,8 @@ class MyHomePage extends StatelessWidget {
                     ],
                   ),
                 ),
+
+                //Second Row contains the Title of the histogram
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -169,6 +170,8 @@ class MyHomePage extends StatelessWidget {
                         style: TextStyle(fontSize: 24)),
                   ],
                 ),
+
+                //Third row contains a the histogram and expected Max cycle length
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
                   child: Row(
@@ -201,7 +204,8 @@ class MyHomePage extends StatelessWidget {
                                           HistogramSeries<MaxCycleLength, num>(
                                             dataSource: chartData,
                                             yValueMapper:
-                                                (MaxCycleLength cycleLength, _) =>
+                                                (MaxCycleLength cycleLength,
+                                                        _) =>
                                                     cycleLength.yValue,
                                             binInterval: 5,
                                             showNormalDistributionCurve: true,
@@ -220,7 +224,8 @@ class MyHomePage extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text('Expected Maximum Cycle Length: $expectedMax'),
+                                  Text(
+                                      'Expected Maximum Cycle Length: $expectedMax'),
                                 ],
                               ),
                             ),

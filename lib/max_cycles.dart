@@ -1,5 +1,6 @@
 import 'dart:math';
 
+///@Author: Goitseone Themba 21000539
 int maxCycleLength(List<int> permutation) {
   final int n = permutation.length;
   final List<bool> visited = List<bool>.filled(n, false);

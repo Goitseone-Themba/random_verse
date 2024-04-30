@@ -1,6 +1,7 @@
 import 'scrambled.dart';
 import 'max_cycles.dart';
 
+  ///@Author: Goitseone Themba 21000539
   List monteCarloSimulation(int n, int N) {
   // Implementation of monteCarloSimulation
   List<int> maxCycleLengths = [];
