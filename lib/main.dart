@@ -30,9 +30,14 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   List<int> lengths = [];
+  double expectedMax = 0;
 
   startSimulation(int n, int N) {
-    lengths = monteCarloSimulation(n, N);
+    
+    List data = monteCarloSimulation(n, N);
+    lengths = data[0];
+    expectedMax = data[1];
+
     notifyListeners();
   }
 }
@@ -49,7 +54,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var lengthData = appState.lengths;
-    int expectedMax = lengthData.reduce(max);
+    double expectedMax = appState.expectedMax;
 
     final List<MaxCycleLength> chartData =
         lengthData.map((e) => MaxCycleLength(e.toDouble())).toList();
@@ -74,127 +79,159 @@ class MyHomePage extends StatelessWidget {
           elevation: 2,
         ),
         body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: 360,
-                    child: TextField(
-                      controller: arraySizeController,
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        hintText: 'Enter array size',
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            arraySizeController.clear();
-                          },
-                          icon: Icon(Icons.clear),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(256, 64, 256, 0),
+            child: Column(
+              // mainAxisSize: MainAxisSize.max,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: 360,
+                      child: TextField(
+                        controller: arraySizeController,
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          hintText: 'Enter array size',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              arraySizeController.clear();
+                            },
+                            icon: Icon(Icons.clear),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    width: 360,
-                    child: TextField(
-                      controller: permController,
-                      maxLines: 1,
-                      decoration: InputDecoration(
-                        hintText: 'Enter number of permutations:',
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            permController.clear();
-                          },
-                          icon: Icon(Icons.clear),
+                    SizedBox(
+                      width: 360,
+                      child: TextField(
+                        controller: permController,
+                        maxLines: 1,
+                        decoration: InputDecoration(
+                          hintText: 'Enter number of permutations:',
+                          border: OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              permController.clear();
+                            },
+                            icon: Icon(Icons.clear),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton.icon(
-                      onPressed: () {
-                        appState.startSimulation(int.parse(arraySizeController.text), int.parse(permController.text));
-                      },
-                      icon: Icon(
-                        Icons.directions_run_outlined,
-                        size: 24,
-                      ),
-                      label: Text('Generate')),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Distribution of Maximum Cycle Length",
-                      style: TextStyle(fontSize: 24)),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 720,
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 4,
-                                color: Color(0x33000000),
-                                offset: Offset(
-                                  -12,
-                                  12,
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                          onPressed: () {
+                            if (arraySizeController.text.isNotEmpty &&
+                                permController.text.isNotEmpty) {
+                              appState.startSimulation(
+                                  int.parse(arraySizeController.text),
+                                  int.parse(permController.text));
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('close'),
+                                    ),
+                                  ],
+                                  title: const Text('Invalid input, array size and number of permutations cannot be empty...'),
                                 ),
-                              )
-                            ],
+                              );
+                            }
+                          },
+                          icon: Icon(
+                            Icons.directions_run_outlined,
+                            size: 24,
                           ),
-                          child: SizedBox(
-                            height: 480,
-                            width: 720,
-                            child: chartData.isNotEmpty
-                                ? SfCartesianChart(
-                                    series: <CartesianSeries>[
-                                      HistogramSeries<MaxCycleLength, num>(
-                                        dataSource: chartData,
-                                        yValueMapper:
-                                            (MaxCycleLength cycleLength, _) =>
-                                                cycleLength.yValue,
-                                        binInterval: 5,
-                                        showNormalDistributionCurve: true,
-                                        curveColor: Colors.deepOrange,
-                                        borderWidth: 3,
-                                      ),
-                                    ],
-                                  )
-                                : SizedBox(),
-                          ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          label: Text('Generate')),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Distribution of Maximum Cycle Length",
+                        style: TextStyle(fontSize: 24)),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 720,
+                        child: Stack(
                           children: [
-                            Text('Expected Maximum Cycle Length: $expectedMax'),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    blurRadius: 4,
+                                    color: Color(0x33000000),
+                                    offset: Offset(
+                                      -12,
+                                      12,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              child: SizedBox(
+                                height: 480,
+                                width: 720,
+                                child: chartData.isNotEmpty
+                                    ? SfCartesianChart(
+                                        series: <CartesianSeries>[
+                                          HistogramSeries<MaxCycleLength, num>(
+                                            dataSource: chartData,
+                                            yValueMapper:
+                                                (MaxCycleLength cycleLength, _) =>
+                                                    cycleLength.yValue,
+                                            binInterval: 5,
+                                            showNormalDistributionCurve: true,
+                                            curveColor: Colors.deepOrange,
+                                            borderWidth: 3,
+                                          ),
+                                        ],
+                                      )
+                                    : SizedBox(),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Expected Maximum Cycle Length: $expectedMax'),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ));
   }
